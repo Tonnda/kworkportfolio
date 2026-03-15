@@ -8,37 +8,29 @@ from aiogram.filters import CommandStart
 from aiogram.types import WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-# Токен бота — получи его у @BotFather
+# ВСТАВЬ СЮДА НОВЫЙ ТОКЕН ПОСЛЕ REVOKE В @BotFather
 TOKEN = "8488379717:AAHlxOy9vLaXcCirqTuDwIlDeDnNsuG0znU"
 
 dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def command_start_handler(message: types.Message) -> None:
-    """
-    Хэндлер на команду /start. Отправляет приветствие и кнопку для открытия Web App.
-    """
     builder = InlineKeyboardBuilder()
-    # Укажи URL своего хостинга (например, GitHub Pages)
     builder.row(types.InlineKeyboardButton(
-        text="Открыть магазин 🛍️", 
-        web_app=WebAppInfo(url="https://tonnda.github.io/kworkportfolio/"))
+        text="⚡ Открыть витрину услуг", 
+        web_app=WebAppInfo(url="https://tonnda.github.io/kworkportfolio/")) # Твоя ссылка
     )
 
     await message.answer(
         f"Привет, {message.from_user.full_name}! 👋\n\n"
-        f"Добро пожаловать в магазин цифровых услуг. Нажми на кнопку ниже, чтобы начать покупки.",
+        f"Я — бот-ассистент разработчика Tonnda. Нажмите на кнопку ниже, чтобы открыть интерактивный прайс-лист и выбрать нужные услуги.",
         reply_markup=builder.as_markup()
     )
 
 @dp.message(F.web_app_data)
 async def web_app_data_handler(message: types.Message) -> None:
-    """
-    Хэндлер для получения данных из Web App.
-    Данные приходят в формате JSON (или строки), отправленной через Telegram.WebApp.sendData().
-    """
     data = message.web_app_data.data
-    await message.answer(f"✅ Новый заказ получен!\n\nСостав заказа:\n{data}")
+    await message.answer(f"✅ Данные успешно переданы из Web App в бота:\n\n{data}\n\nВ реальном проекте здесь будет интеграция с платежной системой.")
 
 async def main() -> None:
     bot = Bot(token=TOKEN)
