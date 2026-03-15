@@ -17,6 +17,15 @@
         <p>Premium automation for your business.</p>
     </header>
 
+    <div class="search-box">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="search-input" placeholder="Поиск услуг...">
+    </div>
+
     <div class="tabs" id="tabs-container">
         <button class="tab active" data-category="all">Все</button>
         <button class="tab" data-category="tg">Telegram</button>
@@ -25,14 +34,18 @@
 
     <div class="catalog" id="catalog"></div>
 
+    <div class="promo-box" id="promo-box" style="display: none;">
+        <input type="text" id="promo-input" placeholder="Промокод (введи TONNDA)">
+        <button onclick="applyPromo()">Применить</button>
+    </div>
+
     <div class="modal-overlay" id="modal">
         <div class="modal-content">
             <div class="modal-drag-pill"></div>
             <div class="modal-icon" id="modal-icon"></div>
             <h2 id="modal-title">Название</h2>
             <p id="modal-desc">Описание</p>
-            <div class="tech-stack" id="modal-stack">
-            </div>
+            <div class="tech-stack" id="modal-stack"></div>
             <button class="btn-close" onclick="closeModal()">Закрыть</button>
         </div>
     </div>

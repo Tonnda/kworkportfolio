@@ -1,10 +1,26 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 tg.ready();
-tg.setHeaderColor('#09090b');
-tg.setBackgroundColor('#09090b');
 
-// База данных товаров
+// Проверка на светлую/темную тему
+if (tg.colorScheme === 'light') {
+    document.body.classList.add('light');
+    tg.setHeaderColor('#f8fafc');
+    tg.setBackgroundColor('#f8fafc');
+} else {
+    document.body.classList.remove('light');
+    tg.setHeaderColor('#09090b');
+    tg.setBackgroundColor('#09090b');
+}
+
+let cart = [];
+let currentDiscount = 0;
+const catalog = document.getElementById('catalog');
+const modal = document.getElementById('modal');
+const promoBox = document.getElementById('promo-box');
+const searchInput = document.getElementById('search-input');
+
+// База данных услуг
 const products = [
     {
         id: 1,
@@ -38,14 +54,16 @@ const products = [
     }
 ];
 
-let cart = [];
-const catalog = document.getElementById('catalog');
-const modal = document.getElementById('modal');
-
-// Рендер карточек
-function renderProducts(filterCategory = 'all') {
+// Рендер карточек с учетом поиска и табов
+function renderProducts(filterCategory = 'all', searchQuery = '') {
     catalog.innerHTML = '';
-    const filtered = filterCategory === 'all' ? products : products.filter(p => p.category === filterCategory);
+    
+    const filtered = products.filter(p => {
+        const matchCategory = filterCategory === 'all' || p.category === filterCategory;
+        const matchSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            p.stack.some(tech => tech.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchCategory && matchSearch;
+    });
     
     filtered.forEach((product, index) => {
         const isActive = cart.some(item => item.id === product.id);
@@ -70,30 +88,65 @@ function renderProducts(filterCategory = 'all') {
     });
 }
 
+// Живой поиск
+searchInput.addEventListener('input', (e) => {
+    const activeTab = document.querySelector('.tab.active').dataset.category;
+    renderProducts(activeTab, e.target.value);
+});
+
 // Управление корзиной
 function toggleCart(id, event) {
-    event.stopPropagation(); // Чтобы не открывалась модалка при клике на кнопку
+    event.stopPropagation();
     const product = products.find(p => p.id === id);
     const index = cart.findIndex(i => i.id === id);
 
     if (index > -1) {
         cart.splice(index, 1);
-        tg.HapticFeedback.impactOccurred('light');
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
     } else {
         cart.push(product);
-        tg.HapticFeedback.impactOccurred('medium');
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
     }
-    renderProducts(document.querySelector('.tab.active').dataset.category);
+    
+    const activeTab = document.querySelector('.tab.active').dataset.category;
+    renderProducts(activeTab, searchInput.value);
     updateMainButton();
+}
+
+// Система промокодов
+function applyPromo() {
+    const input = document.getElementById('promo-input').value.trim().toUpperCase();
+    if (input === 'TONNDA') {
+        currentDiscount = 0.15; // 15% скидка
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        updateMainButton();
+        document.getElementById('promo-input').value = 'Скидка 15% применена!';
+        document.getElementById('promo-input').disabled = true;
+    } else {
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+        const box = document.getElementById('promo-input');
+        box.style.transform = 'translateX(10px)';
+        setTimeout(() => box.style.transform = 'translateX(-10px)', 50);
+        setTimeout(() => box.style.transform = 'translateX(0)', 100);
+        setTimeout(() => box.style.transform = 'none', 150);
+    }
 }
 
 // Главная кнопка TG
 function updateMainButton() {
     if (cart.length === 0) {
         tg.MainButton.hide();
+        promoBox.style.display = 'none';
     } else {
-        let total = cart.reduce((s, i) => s + i.price, 0);
-        tg.MainButton.text = `ОФОРМИТЬ • ${total.toLocaleString('ru-RU')} ₽`;
+        promoBox.style.display = 'flex';
+        
+        let subtotal = cart.reduce((s, i) => s + i.price, 0);
+        let total = subtotal - (subtotal * currentDiscount);
+        
+        tg.MainButton.text = currentDiscount > 0 
+            ? `ОФОРМИТЬ СО СКИДКОЙ • ${total.toLocaleString('ru-RU')} ₽`
+            : `ОФОРМИТЬ • ${total.toLocaleString('ru-RU')} ₽`;
+            
         tg.MainButton.color = '#6366f1';
         tg.MainButton.textColor = '#ffffff';
         tg.MainButton.show();
@@ -103,7 +156,7 @@ function updateMainButton() {
 // Модальное окно
 function openModal(id) {
     const product = products.find(p => p.id === id);
-    document.getElementById('modal-icon').innerHTML = `<div class="icon-wrap" style="margin-bottom:16px;">${product.icon}</div>`;
+    document.getElementById('modal-icon').innerHTML = `<div class="icon-wrap" style="margin-bottom:16px; width:64px; height:64px;">${product.icon}</div>`;
     document.getElementById('modal-title').innerText = product.title;
     document.getElementById('modal-desc').innerText = product.fullDesc;
     
@@ -111,7 +164,7 @@ function openModal(id) {
     stackContainer.innerHTML = product.stack.map(tech => `<span class="tech-tag">${tech}</span>`).join('');
     
     modal.classList.add('open');
-    tg.HapticFeedback.selectionChanged();
+    if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
 }
 
 function closeModal() {
@@ -123,16 +176,24 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', (e) => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
-        renderProducts(e.target.dataset.category);
-        tg.HapticFeedback.selectionChanged();
+        renderProducts(e.target.dataset.category, searchInput.value);
+        if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
     });
 });
 
-// Отправка данных боту
+// Отправка данных боту при оформлении заказа
 Telegram.WebApp.onEvent('mainButtonClicked', function() {
     let items = cart.map(i => `🔸 ${i.title}`).join('\n');
-    tg.sendData(`🚀 Запрос на разработку:\n\n${items}`);
+    let subtotal = cart.reduce((s, i) => s + i.price, 0);
+    let finalTotal = subtotal - (subtotal * currentDiscount);
+    
+    let msg = `🚀 Запрос на разработку:\n\n${items}\n\n💰 Итого: ${finalTotal.toLocaleString('ru-RU')} ₽`;
+    if (currentDiscount > 0) {
+        msg += ` (С учетом скидки 15%)`;
+    }
+    
+    tg.sendData(msg);
 });
 
-// Инициализация при старте
+// Запуск при старте
 renderProducts();
