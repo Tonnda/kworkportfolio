@@ -1,0 +1,56 @@
+:root {
+    --bg: var(--tg-theme-bg-color, #09090b);
+    --text: var(--tg-theme-text-color, #ffffff);
+    --hint: var(--tg-theme-hint-color, #a1a1aa);
+    --accent-color: #6366f1;
+    --accent-glow: rgba(99, 102, 241, 0.4);
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --card-border: rgba(255, 255, 255, 0.08);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto, sans-serif;
+    background-color: var(--bg);
+    background-image: radial-gradient(circle at top left, rgba(99, 102, 241, 0.15), transparent 400px),
+                      radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.1), transparent 400px);
+    background-attachment: fixed;
+    color: var(--text);
+    padding: 24px 20px 100px 20px;
+}
+
+header { margin-bottom: 24px; }
+.dev-badge { display: inline-block; background: rgba(99, 102, 241, 0.15); color: #818cf8; padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 12px; border: 1px solid rgba(99, 102, 241, 0.2); }
+h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+p { color: var(--hint); font-size: 15px; }
+
+/* Табы */
+.tabs { display: flex; gap: 8px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 4px; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+.tab.active { background: var(--text); color: var(--bg); border-color: transparent; }
+
+/* Карточки */
+.catalog { display: flex; flex-direction: column; gap: 16px; }
+.card { background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(16px); border-radius: 24px; padding: 20px; display: flex; align-items: center; transition: 0.3s; cursor: pointer; }
+.card.active { background: rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.5); box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15); }
+.icon-wrap { width: 48px; height: 48px; border-radius: 16px; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: center; margin-right: 16px; flex-shrink: 0; border: 1px solid rgba(255, 255, 255, 0.03); color: var(--text); }
+.card.active .icon-wrap { background: var(--accent-color); border-color: var(--accent-color); box-shadow: 0 4px 12px var(--accent-glow); }
+.info { flex-grow: 1; padding-right: 12px; }
+.title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+.desc { font-size: 13px; color: var(--hint); line-height: 1.4; }
+.action { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.price { font-size: 15px; font-weight: 700; }
+.btn { background: rgba(255, 255, 255, 0.08); color: var(--text); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.card.active .btn { background: var(--text); color: var(--bg); border-color: transparent; }
+
+/* Модальное окно (Шторка снизу) */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: 0.3s; display: flex; flex-direction: column; justify-content: flex-end; z-index: 100; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-content { background: var(--bg); border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 24px; transform: translateY(100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); border-top: 1px solid var(--card-border); }
+.modal-overlay.open .modal-content { transform: translateY(0); }
+.modal-drag-pill { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 10px; margin: 0 auto 20px auto; }
+.tech-stack { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 24px 0; }
+.tech-tag { background: rgba(99, 102, 241, 0.15); color: #818cf8; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+.btn-close { width: 100%; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); padding: 14px; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; }
