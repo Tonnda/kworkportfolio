@@ -4,140 +4,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TONNDA Store</title>
+    <title>TONNDA Premium Web App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: var(--tg-theme-bg-color, #1c1c1d);
-            --text-color: var(--tg-theme-text-color, #ffffff);
-            --hint-color: var(--tg-theme-hint-color, #8e8e93);
-            --button-color: var(--tg-theme-button-color, #0a84ff);
-            --button-text-color: var(--tg-theme-button-text-color, #ffffff);
-            --secondary-bg-color: var(--tg-theme-secondary-bg-color, #2c2c2e);
-            --accent-color: #32d74b;
+            /* Базовые переменные TG с фоллбэком на темную премиум-тему */
+            --bg: var(--tg-theme-bg-color, #09090b);
+            --text: var(--tg-theme-text-color, #ffffff);
+            --hint: var(--tg-theme-hint-color, #a1a1aa);
+
+            /* Кастомные акценты */
+            --accent-color: #6366f1;
+            /* Индиго */
+            --accent-glow: rgba(99, 102, 241, 0.4);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-border-active: rgba(99, 102, 241, 0.5);
         }
 
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px 16px 100px 16px;
-            /* Отступ снизу для кнопки TG */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", Roboto, sans-serif;
+            background-color: var(--bg);
+            /* Радиальное фоновое свечение */
+            background-image: radial-gradient(circle at top left, rgba(99, 102, 241, 0.15), transparent 400px),
+                radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.1), transparent 400px);
+            background-attachment: fixed;
+            color: var(--text);
+            padding: 24px 20px 100px 20px;
+            min-height: 100vh;
+        }
+
+        /* Анимация появления */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         header {
-            text-align: center;
-            margin-bottom: 32px;
-            margin-top: 10px;
+            margin-bottom: 40px;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .dev-badge {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
         }
 
         h1 {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 800;
-            margin: 0 0 8px 0;
-            letter-spacing: 0.5px;
-            background: linear-gradient(135deg, var(--button-color), #bc52ee);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
 
         p {
-            color: var(--hint-color);
+            color: var(--hint);
             font-size: 15px;
-            margin: 0;
+            line-height: 1.5;
         }
 
-        .container {
-            width: 100%;
-            max-width: 400px;
-            /* Идеально для мобилок */
+        .catalog {
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
 
         .card {
-            background-color: var(--secondary-bg-color);
-            border-radius: 20px;
-            padding: 18px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            padding: 20px;
             display: flex;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            opacity: 0;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        .card:active {
-            transform: scale(0.96);
+        /* Задержка появления для карточек */
+        .card:nth-child(1) {
+            animation-delay: 0.1s;
         }
 
-        .icon-box {
-            font-size: 32px;
-            min-width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .card.active {
+            background: rgba(99, 102, 241, 0.08);
+            border-color: var(--card-border-active);
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15);
+        }
+
+        .icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-right: 16px;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text);
         }
 
-        .card-content {
+        .card.active .icon-wrap {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .info {
             flex-grow: 1;
+            padding-right: 12px;
         }
 
-        .card-title {
+        .title {
             font-size: 17px;
             font-weight: 600;
             margin-bottom: 4px;
         }
 
-        .card-desc {
+        .desc {
             font-size: 13px;
-            color: var(--hint-color);
-            line-height: 1.3;
+            color: var(--hint);
+            line-height: 1.4;
         }
 
-        .card-right {
+        .action {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            min-width: 80px;
+            gap: 8px;
         }
 
         .price {
             font-size: 15px;
             font-weight: 700;
-            margin-bottom: 8px;
+            letter-spacing: -0.3px;
         }
 
-        .btn-add {
-            background-color: var(--button-color);
-            color: var(--button-text-color);
-            border: none;
+        .btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 8px 16px;
-            border-radius: 20px;
+            border-radius: 100px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s ease;
         }
 
-        .btn-add.added {
-            background-color: var(--secondary-bg-color);
-            color: var(--button-color);
-            border: 1px solid var(--button-color);
+        .card.active .btn {
+            background: var(--text);
+            color: var(--bg);
+            border-color: transparent;
         }
     </style>
 </head>
@@ -145,46 +199,79 @@
 <body>
 
     <header>
-        <h1>TONNDA DEV</h1>
-        <p>Premium Digital Solutions</p>
+        <div class="dev-badge">Tonnda Dev</div>
+        <h1>Digital<br>Solutions</h1>
+        <p>Premium automation for your business.</p>
     </header>
 
-    <div class="container">
+    <div class="catalog">
+
         <div class="card" id="item1">
-            <div class="icon-box">🤖</div>
-            <div class="card-content">
-                <div class="card-title">Telegram Бот</div>
-                <div class="card-desc">Автоматизация, визитка или AI-помощник.</div>
+            <div class="icon-wrap">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                    <circle cx="12" cy="5" r="2"></circle>
+                    <path d="M12 7v4"></path>
+                    <line x1="8" y1="16" x2="8" y2="16"></line>
+                    <line x1="16" y1="16" x2="16" y2="16"></line>
+                </svg>
             </div>
-            <div class="card-right">
-                <span class="price">4 999 ₽</span>
-                <button class="btn-add" onclick="toggleItem(1, 'Telegram Бот', 4999)">Добавить</button>
+            <div class="info">
+                <div class="title">B2B Автоматизация</div>
+                <div class="desc">Telegram-бот для учета логистики и базы данных.</div>
+            </div>
+            <div class="action">
+                <div class="price">15 000 ₽</div>
+                <button class="btn" onclick="toggle(1, 'B2B Автоматизация', 15000)">Добавить</button>
             </div>
         </div>
 
         <div class="card" id="item2">
-            <div class="icon-box">📱</div>
-            <div class="card-content">
-                <div class="card-title">Web App Магазин</div>
-                <div class="card-desc">Мини-приложение с каталогом прямо в мессенджере.</div>
+            <div class="icon-wrap">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                    <rect x="9" y="9" width="6" height="6"></rect>
+                    <line x1="9" y1="1" x2="9" y2="4"></line>
+                    <line x1="15" y1="1" x2="15" y2="4"></line>
+                    <line x1="9" y1="20" x2="9" y2="23"></line>
+                    <line x1="15" y1="20" x2="15" y2="23"></line>
+                    <line x1="20" y1="9" x2="23" y2="9"></line>
+                    <line x1="20" y1="14" x2="23" y2="14"></line>
+                    <line x1="1" y1="9" x2="4" y2="9"></line>
+                    <line x1="1" y1="14" x2="4" y2="14"></line>
+                </svg>
             </div>
-            <div class="card-right">
-                <span class="price">14 999 ₽</span>
-                <button class="btn-add" onclick="toggleItem(2, 'Web App Магазин', 14999)">Добавить</button>
+            <div class="info">
+                <div class="title">Web App Магазин</div>
+                <div class="desc">Интерактивный UI с корзиной внутри Telegram.</div>
+            </div>
+            <div class="action">
+                <div class="price">25 000 ₽</div>
+                <button class="btn" onclick="toggle(2, 'Web App Магазин', 25000)">Добавить</button>
             </div>
         </div>
 
         <div class="card" id="item3">
-            <div class="icon-box">🎮</div>
-            <div class="card-content">
-                <div class="card-title">Discord + Game</div>
-                <div class="card-desc">Связка бота с вашим сервером Minecraft/Rust.</div>
+            <div class="icon-wrap">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
             </div>
-            <div class="card-right">
-                <span class="price">8 999 ₽</span>
-                <button class="btn-add" onclick="toggleItem(3, 'Discord интеграция', 8999)">Добавить</button>
+            <div class="info">
+                <div class="title">Discord Интеграция</div>
+                <div class="desc">Связка игрового сервера (Java) с Discord.</div>
+            </div>
+            <div class="action">
+                <div class="price">10 000 ₽</div>
+                <button class="btn" onclick="toggle(3, 'Discord Интеграция', 10000)">Добавить</button>
             </div>
         </div>
+
     </div>
 
     <script>
@@ -192,49 +279,47 @@
         tg.expand();
         tg.ready();
 
-        // Адаптация цвета хедера под тему Telegram
-        tg.setHeaderColor('bg_color');
-        tg.setBackgroundColor('bg_color');
+        // Форсируем темную тему для премиум вида, если у юзера светлая
+        tg.setHeaderColor('#09090b');
+        tg.setBackgroundColor('#09090b');
 
         let cart = [];
 
-        function toggleItem(id, name, price) {
+        function toggle(id, name, price) {
+            const card = document.getElementById(`item${id}`);
+            const btn = card.querySelector('.btn');
             const index = cart.findIndex(i => i.id === id);
-            const btn = document.querySelector(`#item${id} .btn-add`);
 
             if (index > -1) {
                 cart.splice(index, 1);
+                card.classList.remove('active');
                 btn.innerText = "Добавить";
-                btn.classList.remove('added');
                 tg.HapticFeedback.impactOccurred('light');
             } else {
                 cart.push({ id, name, price });
+                card.classList.add('active');
                 btn.innerText = "Убрать";
-                btn.classList.add('added');
-                tg.HapticFeedback.impactOccurred('medium'); // Вибрация при нажатии
+                tg.HapticFeedback.impactOccurred('medium');
             }
 
-            updateMainButton();
+            updateButton();
         }
 
-        function updateMainButton() {
+        function updateButton() {
             if (cart.length === 0) {
                 tg.MainButton.hide();
             } else {
-                let totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
-                tg.MainButton.text = `ОФОРМИТЬ ЗАКАЗ • ${totalPrice.toLocaleString('ru-RU')} ₽`;
-                tg.MainButton.color = tg.themeParams.button_color || '#0a84ff';
+                let total = cart.reduce((s, i) => s + i.price, 0);
+                tg.MainButton.text = `ОФОРМИТЬ • ${total.toLocaleString('ru-RU')} ₽`;
+                tg.MainButton.color = '#6366f1';
+                tg.MainButton.textColor = '#ffffff';
                 tg.MainButton.show();
             }
         }
 
         Telegram.WebApp.onEvent('mainButtonClicked', function () {
-            let orderData = cart.map(i => `🔸 ${i.name} — ${i.price} ₽`).join('\n');
-            let total = cart.reduce((sum, i) => sum + i.price, 0);
-
-            let finalString = `🚀 Новый заказ на разработку!\n\n${orderData}\n\n💰 Итого: ${total} ₽`;
-
-            tg.sendData(finalString);
+            let items = cart.map(i => `🔸 ${i.name}`).join('\n');
+            tg.sendData(`🚀 Запрос на разработку:\n\n${items}`);
         });
     </script>
 </body>
