@@ -22,7 +22,7 @@ async def command_start_handler(message: types.Message) -> None:
     # Укажи URL своего хостинга (например, GitHub Pages)
     builder.row(types.InlineKeyboardButton(
         text="Открыть магазин 🛍️", 
-        web_app=WebAppInfo(url="https://yourusername.github.io/your-repo/"))
+        web_app=WebAppInfo(url="https://tonnda.github.io/kworkportfolio/"))
     )
 
     await message.answer(
